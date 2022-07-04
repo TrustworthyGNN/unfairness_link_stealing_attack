@@ -1,16 +1,5 @@
 # unfairness in link stealing attack
 
-## Step -1: Requirement
-
-We follows the instruction on https://github.com/tkipf/gcn to install gcn.
-
-## Step 0: Datasets
-
-We provide the datasets used in our paper: 
-
-```bash
-["AIDS", "COX2", "DHFR", "ENZYMES", "PROTEINS_full", "citeseer", "cora", "pubmed"]
-```
 
 ## Step 1: Train Target Model
 
@@ -58,6 +47,4 @@ x_train = ss.fit_transform(x_train)
 x_test = ss.transform(x_test)
 ```
 
-This is a Pytorch implementation of Stealing links from Graph Neural Networks, as described in our paper:
-
-Xinlei He, Jinyuan Jia, Michael Backes, Neil Zhenqiang Gong, Yang Zhang, [Stealing Links from Graph Neural Networks](https://arxiv.org/abs/2005.02131) (Usenix Security 2021)
+This is a Pytorch implementation of Stealing links from Graph Neural Networks from [github](https://github.com/xinleihe/link_stealing_attack)。
