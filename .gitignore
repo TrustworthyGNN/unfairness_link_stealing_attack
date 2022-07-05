@@ -129,3 +129,5 @@ dmypy.json
 .pyre/
 
 .idea/
+
+data/partial_graph_with_id/
