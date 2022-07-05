@@ -33,4 +33,4 @@ python3 attack.py --dataset cora
 ```
 
 
-This is a Pytorch implementation of Stealing links from Graph Neural Networks from [github](https://github.com/xinleihe/link_stealing_attack)。
+This is a Pytorch implementation of Stealing links from Graph Neural Networks from [github](https://github.com/xinleihe/link_stealing_attack).
