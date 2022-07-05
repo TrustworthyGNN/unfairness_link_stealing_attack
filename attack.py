@@ -1,5 +1,7 @@
 import time
-
+import warnings
+warnings.filterwarnings("ignore")
+import pandas as pd
 from scipy.spatial.distance import cosine, euclidean, correlation, chebyshev, \
     braycurtis, canberra, cityblock, sqeuclidean
 from sklearn.metrics import roc_auc_score
@@ -7,22 +9,15 @@ import json
 import argparse
 import numpy as np
 
+from fairness import display_fairness
+
 parser = argparse.ArgumentParser()
 
-parser.add_argument(
-    '--dataset', type=str, default='cora', help='citeseer, cora or pubmed')
-parser.add_argument(
-    '--datapath', type=str, default="data/dataset/original/", help="data path")
-parser.add_argument(
-    '--prediction_path',
-    type=str,
-    default='data/pred/',
-    help='prediction saved path')
-parser.add_argument(
-    '--partial_graph_path',
-    type=str,
-    default='data/partial_graph_with_id/',
-    help='partial graph saved path')
+parser.add_argument('--dataset', type=str, default='cora', help='citeseer, cora or pubmed')
+parser.add_argument('--datapath', type=str, default="data/dataset/original/", help="data path")
+parser.add_argument('--prediction_path', type=str, default='data/pred/', help='prediction saved path')
+parser.add_argument('--partial_graph_path', type=str, default='data/partial_graph_with_id/',
+                    help='partial graph saved path')
 parser.add_argument('--ratio', type=str, default='0.5', help='(0.1,1.0,0.1)')
 
 args = parser.parse_args()
@@ -51,8 +46,6 @@ def write_auc(pred_prob_list, label, desc):
     sim_list_str = ['cosine', 'euclidean', 'correlation', 'chebyshev',
                     'braycurtis', 'canberra', 'cityblock', 'sqeuclidean']
     timestamp = str(round(time.time()))
-    predicted_labels = []
-    true_labels = []
     with open("result/attack_0_at_%s.txt" % timestamp, "a") as wf:
         for i in range(len(sim_list_str)):
             pred = np.array(pred_prob_list[i], dtype=np.float64)
@@ -63,8 +56,7 @@ def write_auc(pred_prob_list, label, desc):
 
             i_auc = roc_auc_score(label, pred)
             pred_label = [1 if p >= 0.5 else 0 for p in pred]
-            predicted_labels += pred_label
-            true_labels += label
+
             if i_auc < 0.5:
                 i_auc = 1 - i_auc
             print(sim_list_str[i], i_auc)
@@ -72,6 +64,10 @@ def write_auc(pred_prob_list, label, desc):
                 "%s,%s,%d,%0.5f,%s\n" %
                 (dataset, "attack0_%s_%s" %
                  (desc, sim_list_str[i]), -1, i_auc, ratio))
+
+            # show the fairness metrics using fairlearn
+            display_fairness(label, pred_label, pd.Series(label))
+    wf.close()
 
 
 def process():
