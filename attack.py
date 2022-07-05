@@ -1,3 +1,5 @@
+import time
+
 from scipy.spatial.distance import cosine, euclidean, correlation, chebyshev,\
     braycurtis, canberra, cityblock, sqeuclidean
 from sklearn.metrics import roc_auc_score
@@ -48,7 +50,8 @@ def write_auc(pred_prob_list, label, desc):
     print("Attack 0 " + desc)
     sim_list_str = ['cosine', 'euclidean', 'correlation', 'chebyshev',
                     'braycurtis', 'canberra', 'cityblock', 'sqeuclidean']
-    with open("result/attack_0.txt", "a") as wf:
+    timestamp = str(round(time.time()))
+    with open("result/attack_0_at_%s.txt" % timestamp, "a") as wf:
         for i in range(len(sim_list_str)):
             pred = np.array(pred_prob_list[i], dtype=np.float64)
             where_are_nan = np.isnan(pred)
