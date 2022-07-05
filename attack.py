@@ -1,6 +1,6 @@
 import time
 
-from scipy.spatial.distance import cosine, euclidean, correlation, chebyshev,\
+from scipy.spatial.distance import cosine, euclidean, correlation, chebyshev, \
     braycurtis, canberra, cityblock, sqeuclidean
 from sklearn.metrics import roc_auc_score
 import json
@@ -51,6 +51,8 @@ def write_auc(pred_prob_list, label, desc):
     sim_list_str = ['cosine', 'euclidean', 'correlation', 'chebyshev',
                     'braycurtis', 'canberra', 'cityblock', 'sqeuclidean']
     timestamp = str(round(time.time()))
+    predicted_labels = []
+    true_labels = []
     with open("result/attack_0_at_%s.txt" % timestamp, "a") as wf:
         for i in range(len(sim_list_str)):
             pred = np.array(pred_prob_list[i], dtype=np.float64)
@@ -60,6 +62,9 @@ def write_auc(pred_prob_list, label, desc):
             pred[where_are_inf] = 0
 
             i_auc = roc_auc_score(label, pred)
+            pred_label = [1 if p >= 0.5 else 0 for p in pred]
+            predicted_labels += pred_label
+            true_labels += label
             if i_auc < 0.5:
                 i_auc = 1 - i_auc
             print(sim_list_str[i], i_auc)
@@ -73,7 +78,7 @@ def process():
     # to keep the same testing set for using different ratio of training data,
     # we use 10% of data to evaluate the performance.
     test_path = partial_graph_path + \
-        "%s_train_ratio_%s_test.json" % (dataset, "0.9")
+                "%s_train_ratio_%s_test.json" % (dataset, "0.9")
     test_data = open(test_path).readlines()  # read test data only
     label_list = []
     target_posterior_list = []
