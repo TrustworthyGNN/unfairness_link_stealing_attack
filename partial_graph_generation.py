@@ -4,7 +4,7 @@ import random
 import time
 import argparse
 import numpy as np
-from gcn import load_data
+from gcn import load_data, load_data_original
 
 parser = argparse.ArgumentParser()
 
@@ -110,7 +110,7 @@ def generate_train_test(link_list, unlink_list, dense_pred, gcn_pred, train_rati
 
 
 # load data
-adj, features, labels, idx_train, idx_val, idx_test = load_data(file_path, dataset)
+adj, features, labels, idx_train, idx_val, idx_test = load_data_original('./data/dataset/original/', dataset)
 if isinstance(features, np.ndarray):
     feature_arr = features
 else:

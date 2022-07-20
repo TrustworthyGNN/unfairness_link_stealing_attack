@@ -1,0 +1,8 @@
+citeseer,attack0_target posterior similarity_cosine,-1,0.86148,0.5
+citeseer,attack0_target posterior similarity_euclidean,-1,0.85284,0.5
+citeseer,attack0_target posterior similarity_correlation,-1,0.87179,0.5
+citeseer,attack0_target posterior similarity_chebyshev,-1,0.86430,0.5
+citeseer,attack0_target posterior similarity_braycurtis,-1,0.86508,0.5
+citeseer,attack0_target posterior similarity_canberra,-1,0.78612,0.5
+citeseer,attack0_target posterior similarity_cityblock,-1,0.86505,0.5
+citeseer,attack0_target posterior similarity_sqeuclidean,-1,0.85284,0.5
