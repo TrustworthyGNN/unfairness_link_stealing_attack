@@ -188,7 +188,13 @@ def load_data_original(datapath_str, dataset_str):
     idx_val = all_id_list[int(len(all_id_list) * train_ratio):]
     idx_test = all_id_list
     features = torch.FloatTensor(np.array(features.todense()))
+    # add idx filter, since all zeros exist in the label matrix
     labels = torch.LongTensor(np.where(labels)[1])
+    if labels.shape[0] != features.shape[0]:
+        idx_filter = np.where(labels)[0].tolist()
+        idx_train = list(set(idx_filter) & set(idx_train))
+        idx_val = list(set(idx_filter) & set(idx_val))
+        idx_test = list(set(idx_filter) & set(idx_test))
     adj = sparse_mx_to_torch_sparse_tensor(adj)
     return adj, features, labels, idx_train, idx_val, idx_test
 

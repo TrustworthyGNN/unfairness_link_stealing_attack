@@ -75,7 +75,6 @@ def train(epoch):
         model.eval()
         output = model(features, adj)
 
-    # loss_val = F.log_softmax(output[idx_val], labels[idx_val])
     loss_val = loss_fn(output[idx_val], labels[idx_val])
 
     acc_val = accuracy(output[idx_val], labels[idx_val])
