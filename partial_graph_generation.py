@@ -27,8 +27,8 @@ def get_link(adj_mtx, num_of_node):
     rows, cols = adj_mtx.to_dense().nonzero(as_tuple=True)
     print("There are %d edges in this dataset" % len(rows))
     for row_idx in range(len(rows)):
-        r_index = rows[row_idx]
-        c_index = cols[row_idx]
+        r_index = rows[row_idx].item()
+        c_index = cols[row_idx].item()
         if r_index < c_index:
             # update link list
             link_list.append([r_index, c_index])
@@ -67,6 +67,8 @@ def generate_train_test(link_list, unlink_list, dense_pred, gcn_pred, train_rati
             'label': 1,
             'gcn_pred0': gcn_pred[link_id0],
             'gcn_pred1': gcn_pred[link_id1],
+            'gcn_pred0_label': gcn_pred[link_id0].index(max(gcn_pred[link_id0])),
+            'gcn_pred1_label': gcn_pred[link_id1].index(max(gcn_pred[link_id1])),
             "dense_pred0": dense_pred[link_id0],
             "dense_pred1": dense_pred[link_id1],
             "feature_arr0": feature_arr[link_id0],
@@ -81,6 +83,8 @@ def generate_train_test(link_list, unlink_list, dense_pred, gcn_pred, train_rati
             'label': 0,
             'gcn_pred0': gcn_pred[unlink_id0],
             'gcn_pred1': gcn_pred[unlink_id1],
+            'gcn_pred0_label': gcn_pred[unlink_id0].index(max(gcn_pred[unlink_id0])),
+            'gcn_pred1_label': gcn_pred[unlink_id1].index(max(gcn_pred[unlink_id1])),
             "dense_pred0": dense_pred[unlink_id0],
             "dense_pred1": dense_pred[unlink_id1],
             "feature_arr0": feature_arr[unlink_id0],
