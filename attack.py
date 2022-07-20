@@ -55,6 +55,7 @@ def write_auc(pred_prob_list, label, desc):
             pred[where_are_inf] = 0
 
             i_auc = roc_auc_score(label, pred)
+
             pred_label = [1 if p >= 0.5 else 0 for p in pred]
 
             if i_auc < 0.5:

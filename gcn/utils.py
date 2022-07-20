@@ -187,21 +187,10 @@ def load_data_original(datapath_str, dataset_str):
     idx_train = all_id_list[:int(len(all_id_list) * train_ratio)]
     idx_val = all_id_list[int(len(all_id_list) * train_ratio):]
     idx_test = all_id_list
-
-    # original
-    train_mask = sample_mask(idx_train, labels.shape[0])  # index =1, others = 0
-    val_mask = sample_mask(idx_val, labels.shape[0])  # index =1, others = 0
-    test_mask = sample_mask(idx_test, labels.shape[0])  # index =1, others = 0
-
-    y_train = np.zeros(labels.shape)
-    y_val = np.zeros(labels.shape)
-    y_test = np.zeros(labels.shape)
-    y_train[train_mask, :] = labels[
-                             train_mask, :]  # only the mask position has the true label, others are set to 0
-    y_val[val_mask, :] = labels[val_mask, :]
-    y_test[test_mask, :] = labels[test_mask, :]
-
-    return adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask
+    features = torch.FloatTensor(np.array(features.todense()))
+    labels = torch.LongTensor(np.where(labels)[1])
+    adj = sparse_mx_to_torch_sparse_tensor(adj)
+    return adj, features, labels, idx_train, idx_val, idx_test
 
 
 def load_data_tu(datapath_str, dataset_str):

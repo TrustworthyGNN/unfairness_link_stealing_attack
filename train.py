@@ -9,7 +9,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-from gcn.utils import load_data, accuracy
+from gcn.utils import load_data, accuracy, load_data_original
 from gcn.models import GCN, MLPNet
 
 # Training settings
@@ -38,7 +38,8 @@ np.random.seed(args.seed)
 torch.manual_seed(args.seed)
 
 # Load data
-adj, features, labels, idx_train, idx_val, idx_test = load_data()
+# adj, features, labels, idx_train, idx_val, idx_test = load_data()
+adj, features, labels, idx_train, idx_val, idx_test = load_data_original('./data/dataset/original/', args.dataset)
 
 # Model and optimizer
 if args.model == "gcn":
