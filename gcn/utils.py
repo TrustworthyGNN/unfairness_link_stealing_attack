@@ -71,6 +71,7 @@ def load_data(path="./data/cora/", dataset="cora"):
     idx_map = {j: i for i, j in enumerate(idx)}
     edges_unordered = np.genfromtxt("{}{}.cites".format(path, dataset),
                                     dtype=np.int32)
+    breakpoint()
     edges = np.array(list(map(idx_map.get, edges_unordered.flatten())),
                      dtype=np.int32).reshape(edges_unordered.shape)
     adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
@@ -159,7 +160,6 @@ def load_data_original(datapath_str, dataset_str):
     test_idx_reorder = parse_index_file("{}ind.{}.test.index".format(
         datapath_str, dataset_str))
     test_idx_range = np.sort(test_idx_reorder)
-
     if dataset_str == 'citeseer':
         # Fix citeseer dataset (there are some isolated nodes in the graph)
         # Find isolated nodes, add them as zero-vecs into the right position
@@ -177,7 +177,8 @@ def load_data_original(datapath_str, dataset_str):
     features[test_idx_reorder, :] = features[
                                     test_idx_range, :]  # order the test features
     adj = nx.adjacency_matrix(nx.from_dict_of_lists(graph))
-
+    # normalize adjacency matrix
+    adj = normalize(adj + sp.eye(adj.shape[0]))
     labels = np.vstack((ally, ty))
     labels[test_idx_reorder, :] = labels[
                                   test_idx_range, :]  # order the test labels
