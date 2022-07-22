@@ -1,10 +1,11 @@
+import os.path
 import pickle as pkl
 import json
 import random
 import time
 import argparse
 import numpy as np
-from gcn import load_data, load_data_original
+from gcn import load_data_original, load_data_tu
 
 parser = argparse.ArgumentParser()
 
@@ -54,6 +55,8 @@ def get_link(adj_mtx, num_of_node):
 
 
 def generate_train_test(link_list, unlink_list, dense_pred, gcn_pred, train_ratio):
+    if not os.path.exists('data/partial_graph_with_id'):
+        os.mkdir('data/partial_graph_with_id')
     train = []
     test = []
 
@@ -110,7 +113,9 @@ def generate_train_test(link_list, unlink_list, dense_pred, gcn_pred, train_rati
 
 
 # load data
-adj, features, labels, idx_train, idx_val, idx_test = load_data_original('./data/dataset/original/', dataset)
+adj, features, labels, idx_train, idx_val, idx_test = load_data_original('./data/dataset/original/', dataset) \
+    if dataset in ["citeseer", "cora", "pubmed"] else load_data_tu(dataset, dataset)
+
 if isinstance(features, np.ndarray):
     feature_arr = features
 else:

@@ -9,7 +9,7 @@ import json
 import argparse
 import numpy as np
 
-from fairness import display_fairness
+from util.fairness import display_fairness
 
 parser = argparse.ArgumentParser()
 

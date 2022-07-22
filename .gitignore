@@ -132,4 +132,4 @@ dmypy.json
 .DS_Store/
 data/partial_graph_with_id/
 result/
-output/
+output/pred/

@@ -71,7 +71,6 @@ def load_data(path="./data/cora/", dataset="cora"):
     idx_map = {j: i for i, j in enumerate(idx)}
     edges_unordered = np.genfromtxt("{}{}.cites".format(path, dataset),
                                     dtype=np.int32)
-    breakpoint()
     edges = np.array(list(map(idx_map.get, edges_unordered.flatten())),
                      dtype=np.int32).reshape(edges_unordered.shape)
     adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
@@ -216,7 +215,8 @@ def load_data_tu(datapath_str, dataset_str):
     attr, graph = tuple(objects)
 
     adj = nx.adjacency_matrix(nx.from_dict_of_lists(graph))
-
+    # normalize adjacency matrix
+    adj = normalize(adj + sp.eye(adj.shape[0]))
     features = np.array([attr[i]["feature_vec"] for i in range(len(attr))])
     labels = np.array([attr[i]["label"] for i in range(len(attr))])
 
@@ -225,19 +225,17 @@ def load_data_tu(datapath_str, dataset_str):
     idx_train = all_id_list[:int(len(all_id_list) * train_ratio)]
     idx_val = all_id_list[int(len(all_id_list) * train_ratio):]
     idx_test = all_id_list
+    features = torch.FloatTensor(features)
+    # add idx filter, since all zeros exist in the label matrix
+    labels = torch.LongTensor(np.where(labels)[1])
+    if labels.shape[0] != features.shape[0]:
+        idx_filter = np.where(labels)[0].tolist()
+        idx_train = list(set(idx_filter) & set(idx_train))
+        idx_val = list(set(idx_filter) & set(idx_val))
+        idx_test = list(set(idx_filter) & set(idx_test))
+    adj = sparse_mx_to_torch_sparse_tensor(adj)
 
-    train_mask = sample_mask(idx_train, labels.shape[0])
-    val_mask = sample_mask(idx_val, labels.shape[0])
-    test_mask = sample_mask(idx_test, labels.shape[0])
-
-    y_train = np.zeros(labels.shape)
-    y_val = np.zeros(labels.shape)
-    y_test = np.zeros(labels.shape)
-    y_train[train_mask, :] = labels[train_mask, :]
-    y_val[val_mask, :] = labels[val_mask, :]
-    y_test[test_mask, :] = labels[test_mask, :]
-
-    return adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask
+    return adj, features, labels, idx_train, idx_val, idx_test
 
 
 def sparse_to_tuple(sparse_mx):
