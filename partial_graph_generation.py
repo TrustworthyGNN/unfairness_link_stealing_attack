@@ -5,7 +5,7 @@ import random
 import time
 import argparse
 import numpy as np
-from gcn import load_data_original, load_data_tu
+from gcn import load_data_original, load_data_tu, load_dgl_fraud_data
 
 parser = argparse.ArgumentParser()
 
@@ -113,8 +113,12 @@ def generate_train_test(link_list, unlink_list, dense_pred, gcn_pred, train_rati
 
 
 # load data
-adj, features, labels, idx_train, idx_val, idx_test = load_data_original('./data/dataset/original/', dataset) \
-    if dataset in ["citeseer", "cora", "pubmed"] else load_data_tu(dataset, dataset)
+if dataset in ["citeseer", "cora", "pubmed"]:
+    adj, features, labels, idx_train, idx_val, idx_test = load_data_original('./data/dataset/original/', dataset)
+elif dataset in ['yelp', 'amazon']:
+    adj, features, labels, idx_train, idx_val, idx_test = load_dgl_fraud_data(dataset)
+else:
+    adj, features, labels, idx_train, idx_val, idx_test = load_data_tu(dataset, dataset)
 
 if isinstance(features, np.ndarray):
     feature_arr = features

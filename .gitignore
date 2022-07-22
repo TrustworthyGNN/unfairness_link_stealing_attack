@@ -133,3 +133,4 @@ dmypy.json
 data/partial_graph_with_id/
 result/
 output/pred/
+/test.py

@@ -1,8 +1,10 @@
+import dgl
 import numpy as np
 import pickle as pkl
 import scipy.sparse as sp
 import networkx as nx
 import torch
+from dgl.data import FraudDataset, FraudYelpDataset, FraudAmazonDataset
 from scipy.sparse.linalg import eigsh
 import sys
 from scipy.spatial import distance
@@ -234,6 +236,26 @@ def load_data_tu(datapath_str, dataset_str):
         idx_val = list(set(idx_filter) & set(idx_val))
         idx_test = list(set(idx_filter) & set(idx_test))
     adj = sparse_mx_to_torch_sparse_tensor(adj)
+    return adj, features, labels, idx_train, idx_val, idx_test
+
+
+def load_dgl_fraud_data(name='yelp'):
+    dataset = FraudDataset(name)
+    graph = dataset[0]
+    features = graph.ndata['feature']
+    labels = graph.ndata['label']
+    adj = dgl.to_homogeneous(graph).adj()
+    all_id_list = list(range(len(labels)))
+    # method 1: original split provided by dgl
+    # idx_train = np.where(graph.ndata['train_mask'])[0].tolist()
+    # idx_val = np.where(graph.ndata['val_mask'])[0].tolist()
+    # idx_test = np.where(graph.ndata['test_mask'])[0].tolist()
+
+    # method 2: split ratio used in "stealing link" paper
+    train_ratio = 0.1
+    idx_train = all_id_list[:int(len(all_id_list) * train_ratio)]
+    idx_val = all_id_list[int(len(all_id_list) * train_ratio):]
+    idx_test = all_id_list
 
     return adj, features, labels, idx_train, idx_val, idx_test
 
