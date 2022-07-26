@@ -1,8 +1,0 @@
-cora,attack0_target posterior similarity_cosine,-1,0.93729,0.5
-cora,attack0_target posterior similarity_euclidean,-1,0.93769,0.5
-cora,attack0_target posterior similarity_correlation,-1,0.93079,0.5
-cora,attack0_target posterior similarity_chebyshev,-1,0.93267,0.5
-cora,attack0_target posterior similarity_braycurtis,-1,0.94315,0.5
-cora,attack0_target posterior similarity_canberra,-1,0.92800,0.5
-cora,attack0_target posterior similarity_cityblock,-1,0.94315,0.5
-cora,attack0_target posterior similarity_sqeuclidean,-1,0.93769,0.5
