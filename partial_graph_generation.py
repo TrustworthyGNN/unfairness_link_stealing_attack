@@ -5,7 +5,7 @@ import random
 import time
 import argparse
 import numpy as np
-from gcn import load_data_original, load_data_tu, load_dgl_fraud_data
+from gcn import load_data_original, load_data_tu, load_dgl_fraud_data, load_nifty
 
 parser = argparse.ArgumentParser()
 
@@ -117,6 +117,8 @@ if dataset in ["citeseer", "cora", "pubmed"]:
     adj, features, labels, idx_train, idx_val, idx_test = load_data_original('./data/dataset/original/', dataset)
 elif dataset in ['yelp', 'amazon']:
     adj, features, labels, idx_train, idx_val, idx_test = load_dgl_fraud_data(dataset)
+elif args.dataset in ['german', 'credit']:
+    adj, features, labels, idx_train, idx_val, idx_test = load_nifty(args.dataset)
 else:
     adj, features, labels, idx_train, idx_val, idx_test = load_data_tu(dataset, dataset)
 

@@ -9,7 +9,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-from gcn.utils import load_data, accuracy, load_data_original, load_data_tu, load_dgl_fraud_data
+from gcn.utils import load_data, accuracy, load_data_original, load_data_tu, load_dgl_fraud_data, load_nifty
 from gcn.models import GCN, MLPNet
 
 # Training settings
@@ -42,6 +42,8 @@ if args.dataset in ["citeseer", "cora", "pubmed"]:
     adj, features, labels, idx_train, idx_val, idx_test = load_data_original('./data/dataset/original/', args.dataset)
 elif args.dataset in ['yelp', 'amazon']:
     adj, features, labels, idx_train, idx_val, idx_test = load_dgl_fraud_data(args.dataset)
+elif args.dataset in ['german', 'credit']:
+    adj, features, labels, idx_train, idx_val, idx_test = load_nifty(args.dataset)
 else:
     adj, features, labels, idx_train, idx_val, idx_test = load_data_tu(args.dataset, args.dataset)
 
