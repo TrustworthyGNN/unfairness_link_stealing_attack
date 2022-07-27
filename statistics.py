@@ -81,4 +81,5 @@ ax.plot(est)
 # plt.ylabel('ave degree inner/all')
 title = "statistic value"
 ax.set_title(title)
+plt.savefig('result/' + args.dataset + ' empirical study statistic value.png', dpi=600)
 plt.show()
