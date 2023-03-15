@@ -6,7 +6,7 @@ import pickle as pkl
 import scipy.sparse as sp
 import networkx as nx
 import torch
-from dgl.data import FraudDataset
+from dgl.data import FraudDataset,FraudAmazonDataset
 from scipy.sparse.linalg import eigsh
 import sys
 from scipy.spatial import distance
@@ -52,7 +52,6 @@ def entropy(P):
     P = P + epsilon
     entropy_value = -np.sum(P * np.log(P))
     return entropy_value
-
 
 def parse_index_file(filename):
     """Parse index file."""
@@ -316,7 +315,8 @@ def load_nifty(dataset, path="./data/dataset/"):
 
 
 def load_dgl_fraud_data(name='yelp'):
-    dataset = FraudDataset(name)
+    print("load amazon dataset from FraudAmazon:")
+    dataset = FraudAmazonDataset() if name=="amazon"else FraudDataset(name)
     graph = dataset[0]
     features = graph.ndata['feature']
     labels = graph.ndata['label']
@@ -424,3 +424,4 @@ if __name__ == '__main__':
     datapath_str = "data/dataset/original/"
     dataset_str = "citeseer"
     load_data(datapath_str, dataset_str)
+    load_dgl_fraud_data("amazon")

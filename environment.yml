@@ -3,6 +3,7 @@ channels:
   - pytorch
   - dglteam
   - defaults
+  - conda-forge
 dependencies:
   - appnope=0.1.2=py38hecd8cb5_1001
   - argon2-cffi=21.3.0=pyhd3eb1b0_0
@@ -190,4 +191,4 @@ dependencies:
     - urllib3==1.26.8
     - wasabi==0.9.0
     - wmi==1.4.9
-prefix: /opt/anaconda3/envs/pytorch
+prefix: /home/wayne/anaconda3/envs/pytorch

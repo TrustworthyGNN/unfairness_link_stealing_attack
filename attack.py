@@ -22,7 +22,7 @@ from gcn.utils import entropy, kl_divergence, js_divergence
 from scipy.stats import wasserstein_distance
 
 # from fairness import display_fairness
-from util.fairness import display_fairness
+# from util.fairness import display_fairness
 
 parser = argparse.ArgumentParser()
 
@@ -35,7 +35,7 @@ parser.add_argument('--ratio', type=str, default='0.5', help='(0.1,1.0,0.1)')
 
 args = parser.parse_args()
 
-args.dataset = 'cora'
+# args.dataset = 'cora'
 # args.dataset = 'citeseer'
 # args.dataset = 'pubmed'
 # args.dataset = 'COX2' #1
