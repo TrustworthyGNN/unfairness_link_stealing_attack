@@ -11,6 +11,7 @@ from scipy.sparse.linalg import eigsh
 import sys
 from scipy.spatial import distance
 from scipy.spatial import distance_matrix
+from ogb.nodeproppred import DglNodePropPredDataset
 
 
 def build_relationship(x, thresh=0.25):
@@ -336,6 +337,33 @@ def load_dgl_fraud_data(name='yelp'):
     return adj, features, labels, idx_train, idx_val, idx_test
 
 
+def load_data_from_csv(name="twitter", path='./dataset'):
+    dataset = dgl.data.CSVDataset(os.path.join(path,name))
+    graph = dataset[0]
+    breakpoint()
+
+def load_ogb_data(name="ogbn-arxiv"):
+    # Medium: ogbn-products, ogbn-proteins
+    # Small: ogbn-arxiv
+    dataset = DglNodePropPredDataset(name=name)
+    split_idx = dataset.get_idx_split()
+    graph, labels = dataset[0]
+    breakpoint()
+    features = graph.ndata['feat']
+    adj = dgl.to_homogeneous(graph).adj()
+    all_id_list = list(range(len(labels)))
+    # method 1: original split provided by dgl
+    # idx_train = np.where(graph.ndata['train_mask'])[0].tolist()
+    # idx_val = np.where(graph.ndata['val_mask'])[0].tolist()
+    # idx_test = np.where(graph.ndata['test_mask'])[0].tolist()
+
+    # method 2: split ratio used in "stealing link" paper
+    train_ratio = 0.1
+    idx_train = all_id_list[:int(len(all_id_list) * train_ratio)]
+    idx_val = all_id_list[int(len(all_id_list) * train_ratio):]
+    idx_test = all_id_list
+
+    return adj, features, labels, idx_train, idx_val, idx_test
 def sparse_to_tuple(sparse_mx):
     """Convert sparse matrix to tuple representation."""
 
@@ -421,7 +449,15 @@ def chebyshev_polynomials(adj, k):
 
 
 if __name__ == '__main__':
-    datapath_str = "data/dataset/original/"
-    dataset_str = "citeseer"
-    load_data(datapath_str, dataset_str)
-    load_dgl_fraud_data("amazon")
+    # datapath_str = "data/dataset/original/"
+    # dataset_str = "citeseer"
+    # load_data(datapath_str, dataset_str)
+    # load_dgl_fraud_data("amazon")
+    dataset = DglNodePropPredDataset(name='ogbn-proteins')
+    split_idx = dataset.get_idx_split()
+
+    load_ogb_data("ogbn-products")
+    # edges_df.to_csv('./dataset/twitter/edges.csv', index=False)
+    # nodes_df.to_csv('./dataset/twitter/nodes.csv', index=False)
+    # load_data_from_csv('twitter')
+    breakpoint()
