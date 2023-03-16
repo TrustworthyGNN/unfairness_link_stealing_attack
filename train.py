@@ -9,16 +9,16 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-from gcn.utils import load_data, accuracy, load_data_original, load_data_tu, load_dgl_fraud_data, load_nifty
+from gcn.utils import load_data, accuracy, load_data_original, load_data_tu, load_dgl_fraud_data, load_nifty, load_ogb_data
 from gcn.models import GCN, MLPNet, GAT
 
-from util import inform
 
 # Training settings
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', default="cora", help='Graph Dataset.')
 parser.add_argument('--model', default="mlp", help='Applied Model.')
-parser.add_argument('--no-cuda', action='store_true', default=True,
+parser.add_argument('--device', required=True, help='CUDA No.')
+parser.add_argument('--no-cuda', action='store_true', default=False,
                     help='Disables CUDA training.')
 parser.add_argument('--fastmode', action='store_true', default=False,
                     help='Validate during training pass.')
@@ -40,7 +40,7 @@ args = parser.parse_args()
 
 np.random.seed(args.seed)
 torch.manual_seed(args.seed)
-
+device = torch.device("cuda:" + args.device if torch.cuda.is_available() else "cpu")
 # args.dataset = 'pubmed'
 # load data
 if args.dataset in ["citeseer", "cora", "pubmed"]:
@@ -49,9 +49,10 @@ elif args.dataset in ['yelp', 'amazon']:
     adj, features, labels, idx_train, idx_val, idx_test = load_dgl_fraud_data(args.dataset)
 elif args.dataset in ['german', 'credit']:
     adj, features, labels, idx_train, idx_val, idx_test = load_nifty(args.dataset)
+elif args.dataset in ['ogbn-arxiv','ogbn-products']:
+    adj, features, labels, idx_train, idx_val, idx_test = load_ogb_data(args.dataset)
 else:
     adj, features, labels, idx_train, idx_val, idx_test = load_data_tu(args.dataset, args.dataset)
-
 # args.model = "gat"
 # alpha = 0
 # # sim_metric = 'jaccard'
@@ -86,9 +87,13 @@ else:
                    n_classes=labels.max().item() + 1,
                    dropout=args.dropout)
 
+print("Device:{}".format(device))
+model.to(device)
 optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
 
-
+features = features.to(device)
+adj = adj.to(device)
+labels = labels.to(device)
 def train(epoch):
     t = time.time()
     model.train()
@@ -109,7 +114,7 @@ def train(epoch):
         # Evaluate validation set performance separately,
         # deactivates dropout during validation run.
         model.eval()
-        output = model(features, adj)
+        output = model(features.to(device), adj.to(device))
 
     loss_val = loss_fn(output[idx_val], labels[idx_val])
 

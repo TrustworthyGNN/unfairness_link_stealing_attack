@@ -321,6 +321,7 @@ def load_dgl_fraud_data(name='yelp'):
     graph = dataset[0]
     features = graph.ndata['feature']
     labels = graph.ndata['label']
+    #breakpoint()
     adj = dgl.to_homogeneous(graph).adj()
     all_id_list = list(range(len(labels)))
     # method 1: original split provided by dgl
@@ -348,7 +349,7 @@ def load_ogb_data(name="ogbn-arxiv"):
     dataset = DglNodePropPredDataset(name=name)
     split_idx = dataset.get_idx_split()
     graph, labels = dataset[0]
-    breakpoint()
+    #breakpoint()
     features = graph.ndata['feat']
     adj = dgl.to_homogeneous(graph).adj()
     all_id_list = list(range(len(labels)))
@@ -363,7 +364,7 @@ def load_ogb_data(name="ogbn-arxiv"):
     idx_val = all_id_list[int(len(all_id_list) * train_ratio):]
     idx_test = all_id_list
 
-    return adj, features, labels, idx_train, idx_val, idx_test
+    return adj, features, labels.squeeze(), idx_train, idx_val, idx_test
 def sparse_to_tuple(sparse_mx):
     """Convert sparse matrix to tuple representation."""
 
@@ -452,9 +453,9 @@ if __name__ == '__main__':
     # datapath_str = "data/dataset/original/"
     # dataset_str = "citeseer"
     # load_data(datapath_str, dataset_str)
-    # load_dgl_fraud_data("amazon")
-    dataset = DglNodePropPredDataset(name='ogbn-proteins')
-    split_idx = dataset.get_idx_split()
+    #load_dgl_fraud_data("amazon")
+    #dataset = DglNodePropPredDataset(name='ogbn-proteins')
+    #split_idx = dataset.get_idx_split()
 
     load_ogb_data("ogbn-products")
     # edges_df.to_csv('./dataset/twitter/edges.csv', index=False)
