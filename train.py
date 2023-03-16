@@ -10,7 +10,9 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 from gcn.utils import load_data, accuracy, load_data_original, load_data_tu, load_dgl_fraud_data, load_nifty
-from gcn.models import GCN, MLPNet
+from gcn.models import GCN, MLPNet, GAT
+
+from util import inform
 
 # Training settings
 parser = argparse.ArgumentParser()
@@ -31,12 +33,15 @@ parser.add_argument('--hidden', type=int, default=16,
                     help='Number of hidden units.')
 parser.add_argument('--dropout', type=float, default=0.5,
                     help='Dropout rate (1 - keep probability).')
+parser.add_argument('--nb_heads', type=int, default=1, help='Number of head attentions.')
+parser.add_argument('--alpha', type=float, default=0.2, help='Alpha for the leaky_relu.')
 
 args = parser.parse_args()
 
 np.random.seed(args.seed)
 torch.manual_seed(args.seed)
 
+# args.dataset = 'pubmed'
 # load data
 if args.dataset in ["citeseer", "cora", "pubmed"]:
     adj, features, labels, idx_train, idx_val, idx_test = load_data_original('./data/dataset/original/', args.dataset)
@@ -47,13 +52,34 @@ elif args.dataset in ['german', 'credit']:
 else:
     adj, features, labels, idx_train, idx_val, idx_test = load_data_tu(args.dataset, args.dataset)
 
+# args.model = "gat"
+# alpha = 0
+# # sim_metric = 'jaccard'
+# sim_metric = 'cosine'
+# if sim_metric=='jaccard':
+#     # alpha = 2e-4
+#     lap = inform.get_similarity_lap_matrix(adj, metric='jaccard')
+# elif sim_metric == 'cosine':
+#     # alpha = 1e-6
+#     lap = inform.get_similarity_lap_matrix(features, metric='cosine')
+# else:
+#     raise ValueError('Please specify the type of similarity metric.')
+# # print(lap)
+# # assert False
+
 # Model and optimizer
 if args.model == "gcn":
     model = GCN(feat=features.shape[1],
                 hidden_dim=args.hidden,
                 n_classes=labels.max().item() + 1,
                 dropout=args.dropout)
-
+elif args.model == "gat":
+    model = GAT(nfeat=features.shape[1],
+                nhid=args.hidden,
+                nclass=int(labels.max()) + 1,
+                dropout=args.dropout,
+                nheads=args.nb_heads,
+                alpha=args.alpha)
 else:
     model = MLPNet(feat=features.shape[1],
                    hidden_dim=args.hidden,
@@ -72,6 +98,10 @@ def train(epoch):
     # loss_train = F.nll_loss(output[idx_train], labels[idx_train])
     loss_train = loss_fn(output[idx_train], labels[idx_train])
     acc_train = accuracy(output[idx_train], labels[idx_train])
+    # adding the fairness enhancing item
+    # loss_fair = inform.fairness_loss(lap, output)
+    # print("loss_fair : ", loss_fair.detach().numpy())
+    # loss_train += alpha * loss_fair
     loss_train.backward()
     optimizer.step()
 
@@ -99,6 +129,7 @@ def test():
     loss_fn = nn.CrossEntropyLoss()
     loss_test = loss_fn(output[idx_test], labels[idx_test])
     acc_test = accuracy(output[idx_test], labels[idx_test])
+    # loss_fair = inform.fairness_loss(lap, output)
     print("Test set results:",
           "loss= {:.4f}".format(loss_test.item()),
           "accuracy= {:.4f}".format(acc_test.item()))
