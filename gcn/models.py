@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from .layers import GraphConvolution, MLPReadout, GraphAttentionLayer
+from .layers import GraphConvolution, MLPReadout, GraphAttentionLayer, SageConvLayer
 
 
 class GCN(nn.Module):
@@ -62,3 +62,21 @@ class GAT(nn.Module):
         x = F.dropout(x, self.dropout, training=self.training)
         x = F.elu(self.out_att(x, adj))
         return F.log_softmax(x, dim=1)
+
+
+class GraphSage(nn.Module):
+    def __init__(self, nfeat, nhid, nclass, dropout):
+        super(GraphSage, self).__init__()
+        self.sage1 = SageConvLayer(nfeat, nhid)
+        self.mlp = nn.Linear(nhid, nclass)
+        self.dropout = dropout
+        self.reset_parameters()
+    def reset_parameters(self):
+        nn.init.normal_(self.mlp.weight, std=0.05)
+
+
+    def forward(self, x, adj):
+        x = F.relu(self.sage1(x, adj))
+        x = F.dropout(x, self.dropout, training=self.training)
+        x = self.mlp(x)
+        return x

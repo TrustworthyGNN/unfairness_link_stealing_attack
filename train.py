@@ -10,7 +10,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 from gcn.utils import load_data, accuracy, load_data_original, load_data_tu, load_dgl_fraud_data, load_nifty, load_ogb_data
-from gcn.models import GCN, MLPNet, GAT
+from gcn.models import GCN, MLPNet, GAT, GraphSage
 
 
 # Training settings
@@ -81,6 +81,11 @@ elif args.model == "gat":
                 dropout=args.dropout,
                 nheads=args.nb_heads,
                 alpha=args.alpha)
+elif args.model == "sage":
+    model = GraphSage(nfeat=features.shape[1],
+                nhid=args.hidden,
+                nclass=int(labels.max()) + 1,
+                dropout=args.dropout,)
 else:
     model = MLPNet(feat=features.shape[1],
                    hidden_dim=args.hidden,
