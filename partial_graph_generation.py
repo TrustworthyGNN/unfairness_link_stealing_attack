@@ -5,11 +5,12 @@ import random
 import time
 import argparse
 import numpy as np
-from gcn import load_data_original, load_data_tu, load_dgl_fraud_data, load_nifty
+from gcn import load_data_original, load_data_tu, load_dgl_fraud_data, load_nifty, load_ogb_data
 
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--dataset', type=str, default='cora', help='citeseer, cora or pubmed')
+parser.add_argument('--model', type=str, required=True, help="model")
 parser.add_argument('--filepath', type=str, default="data/cora/", help="data path")
 parser.add_argument('--prediction_path', type=str, default='output/pred/', help='prediction saved path')
 parser.add_argument('--saving_path', type=str, default='data/partial_graph_with_id/', help='partial graph saved path')
@@ -102,11 +103,11 @@ def generate_train_test(link_list, unlink_list, dense_pred, gcn_pred, train_rati
             test.append(line_link)
             test.append(line_unlink)
 
-    with open(saving_path + "%s_train_ratio_%0.1f_train.json" % (dataset, train_ratio), "w") as wf1:
+    with open(saving_path + "%s_%s_train_ratio_%0.1f_train.json" % (args.model,dataset, train_ratio), "w") as wf1:
         for train_row in train:
             wf1.write("%s\n" % json.dumps(train_row))
         wf1.close()
-    with open(saving_path + "%s_train_ratio_%0.1f_test.json" % (dataset, train_ratio), "w") as wf2:
+    with open(saving_path + "%s_%s_train_ratio_%0.1f_test.json" % (args.model,dataset, train_ratio), "w") as wf2:
         for test_row in test:
             wf2.write("%s\n" % json.dumps(test_row))
         wf2.close()
@@ -119,6 +120,8 @@ elif dataset in ['yelp', 'amazon']:
     adj, features, labels, idx_train, idx_val, idx_test = load_dgl_fraud_data(dataset)
 elif args.dataset in ['german', 'credit']:
     adj, features, labels, idx_train, idx_val, idx_test = load_nifty(args.dataset)
+elif args.dataset in ['ogbn-arxiv','ogbn-products', 'ogbn-mag']:
+    adj, features, labels, idx_train, idx_val, idx_test = load_ogb_data(args.dataset)
 else:
     adj, features, labels, idx_train, idx_val, idx_test = load_data_tu(dataset, dataset)
 
@@ -129,8 +132,13 @@ else:
 feature_arr = feature_arr.tolist()
 
 # load saved model
-dense_pred = pkl.loads(open(prediction_path + "%s_mlp_pred.pkl" % dataset, "rb").read())
-gcn_pred = pkl.loads(open(prediction_path + "%s_gcn_pred.pkl" % dataset, "rb").read())
+#dense_pred = pkl.loads(open(prediction_path + "%s_mlp_pred.pkl" % dataset, "rb").read())
+print("using model:{}".format(args.model))
+fiel_path = "{}{}_{}_pred.pkl".format(prediction_path,dataset,args.model)
+print("fiel path:{}".format(fiel_path))
+gcn_pred = pkl.loads(open(fiel_path,"rb").read())
+#gcn_pred = pkl.loads(open(prediction_path + "%s_%s_pred.pkl" % dataset, % args.model, "rb").read())
+dense_pred = gcn_pred
 dense_pred = dense_pred.tolist()
 gcn_pred = gcn_pred.tolist()
 

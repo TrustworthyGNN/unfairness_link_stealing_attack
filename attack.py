@@ -27,6 +27,7 @@ from scipy.stats import wasserstein_distance
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--dataset', type=str, default='cora', help='citeseer, cora or pubmed')
+parser.add_argument('--model', type=str, required=True, help='model')
 parser.add_argument('--datapath', type=str, default="data/dataset/original/", help="data path")
 parser.add_argument('--prediction_path', type=str, default='data/pred/', help='prediction saved path')
 parser.add_argument('--partial_graph_path', type=str, default='data/partial_graph_with_id/',
@@ -816,7 +817,7 @@ def process():
     # to keep the same testing set for using different ratio of training data,
     # we use 10% of data to evaluate the performance.
     test_path = partial_graph_path + \
-                "%s_train_ratio_%s_test.json" % (dataset, "0.1")
+                "%s_%s_train_ratio_%s_test.json" % (args.model, dataset, "0.1")
     test_data = open(test_path).readlines()  # read test data only
     label_list = []
     group_dict = {}

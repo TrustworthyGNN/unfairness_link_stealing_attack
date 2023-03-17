@@ -7,15 +7,38 @@ from .layers import GraphConvolution, MLPReadout, GraphAttentionLayer, SageConvL
 class GCN(nn.Module):
     def __init__(self, feat, hidden_dim, n_classes, dropout):
         super(GCN, self).__init__()
-        self.gc1 = GraphConvolution(feat, hidden_dim)
-        self.gc2 = GraphConvolution(hidden_dim, n_classes)
+        self.convs = torch.nn.ModuleList()
+        self.convs.append(GraphConvolution(feat, hidden_dim))
+        self.bns = torch.nn.ModuleList()
+        self.bns.append(torch.nn.BatchNorm1d(hidden_dim))
+        num_layers = 2
+        for _ in range(num_layers - 2):
+            self.convs.append(
+                GraphConvolution(hidden_dim, hidden_dim))
+            self.bns.append(torch.nn.BatchNorm1d(hidden_dim))
+        self.convs.append(GraphConvolution(hidden_dim, n_classes))
+        #self.gc1 = GraphConvolution(feat, hidden_dim)
+        #self.gc2 = GraphConvolution(hidden_dim, n_classes)
         self.dropout = dropout
 
+    def reset_parameters(self):
+        for conv in self.convs:
+            conv.reset_parameters()
+        for bn in self.bns:
+            bn.reset_parameters()
+
     def forward(self, x, adj):
-        x = F.relu(self.gc1(x, adj))
-        x = F.dropout(x, self.dropout, training=self.training)
-        x = self.gc2(x, adj)
-        return F.log_softmax(x, dim=1)
+        for i, conv in enumerate(self.convs[:-1]):
+            x = conv(x, adj)
+            x = self.bns[i](x)
+            x = F.relu(x)
+            x = F.dropout(x, p=self.dropout, training=self.training)
+        x = self.convs[-1](x, adj)
+        return x.log_softmax(dim=-1)
+        #x = F.relu(self.gc1(x, adj))
+        #x = F.dropout(x, self.dropout, training=self.training)
+        #x = self.gc2(x, adj)
+        #return F.log_softmax(x, dim=1)
 
 
 class MLPNet(nn.Module):
